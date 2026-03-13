@@ -1,0 +1,197 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>WASM Compiler Unit Tests</title>
+        <script data-main="unit_wasm" src="vendor/require.js"></script>
+
+        <!-- Basic integer output -->
+        <script id="wasm_simplest" type="text/pascal" data-expected="1 2 3">
+            program TestProgram;
+            begin
+                WriteLn(1, 2, 3);
+            end.
+        </script>
+
+        <!-- Integer variables and arithmetic -->
+        <script id="wasm_variable" type="text/pascal" data-expected="2">
+            program TestProgram;
+            var i : Integer;
+                j : Integer;
+            begin
+                i := 1;
+                j := i * 2;
+                WriteLn(j);
+            end.
+        </script>
+
+        <!-- For loop -->
+        <script id="wasm_for_loop" type="text/pascal" data-expected="1 2 3 4 5">
+            program TestProgram;
+            var i : Integer;
+            begin
+                for i := 1 to 5 do
+                    WriteLn(i);
+            end.
+        </script>
+
+        <!-- For downto loop -->
+        <script id="wasm_for_downto_loop" type="text/pascal" data-expected="5 4 3 2 1">
+            program TestProgram;
+            var i : Integer;
+            begin
+                for i := 5 downto 1 do
+                    WriteLn(i);
+            end.
+        </script>
+
+        <!-- Repeat/until loop -->
+        <script id="wasm_repeat_loop" type="text/pascal" data-expected="1 2 3 4 5">
+            program TestProgram;
+            var i : Integer;
+            begin
+                i := 1;
+                repeat
+                    WriteLn(i);
+                    i := i + 1;
+                until i > 5;
+            end.
+        </script>
+
+        <!-- While loop -->
+        <script id="wasm_while_loop" type="text/pascal" data-expected="1 2 3 4 5">
+            program TestProgram;
+            var i : Integer;
+            begin
+                i := 1;
+                while i <= 5 do
+                    begin
+                        WriteLn(i);
+                        i := i + 1;
+                    end;
+            end.
+        </script>
+
+        <!-- Procedure with global variable access -->
+        <script id="wasm_procedure" type="text/pascal" data-expected="1 3 7 123 123">
+            program TestProgram;
+            var i : integer;
+                procedure WriteAndIncrement(di : integer);
+                var j : integer;
+                begin
+                    WriteLn(i);
+                    j := di*2;
+                    i := i + j;
+                end;
+                procedure NoParameters;
+                begin
+                    Writeln(123);
+                end;
+            begin
+                i := 1;
+                WriteAndIncrement(1);
+                WriteAndIncrement(2);
+                WriteAndIncrement(3);
+                NoParameters;
+                NoParameters
+            end.
+        </script>
+
+        <!-- Functions -->
+        <script id="wasm_function" type="text/pascal" data-expected="3 6 9 123">
+            program TestProgram;
+            var i : integer;
+                function Triple(i : integer) : integer;
+                begin
+                    Triple := i * 3;
+                end;
+                function NoParameters : integer;
+                begin
+                    NoParameters := 123;
+                end;
+            begin
+                for i := 1 to 3 do
+                    WriteLn(Triple(i));
+                Writeln(NoParameters);
+            end.
+        </script>
+
+        <!-- Recursive function -->
+        <script id="wasm_recursion" type="text/pascal" data-expected="1 1 2 3 5 8 13 21 34 55">
+            program TestProgram;
+            var i : integer;
+                function Fibonacci(i : integer) : integer;
+                begin
+                    if i <= 2 then
+                        Fibonacci := 1
+                    else
+                        Fibonacci := Fibonacci(i - 1) + Fibonacci(i - 2);
+                end;
+            begin
+                for i := 1 to 10 do
+                    WriteLn(Fibonacci(i));
+            end.
+        </script>
+
+        <!-- If/else -->
+        <script id="wasm_if" type="text/pascal" data-expected="Smaller Bigger Smaller">
+            program TestProgram;
+            var i, j : integer;
+            begin
+                i := 5;
+                j := 6;
+                { With else }
+                if i < j then
+                    WriteLn('Smaller')
+                else
+                    WriteLn('Bigger');
+                if j < i then
+                    WriteLn('Smaller')
+                else
+                    WriteLn('Bigger');
+                { Without else }
+                if i < j then
+                    WriteLn('Smaller');
+                if j < i then
+                    WriteLn('Smaller');
+            end.
+        </script>
+
+        <style>
+            body {
+                font-family: sans-serif;
+                margin: 20px;
+            }
+            th {
+                text-align: left;
+            }
+            th, td {
+                padding-right: 10px;
+            }
+            span.passed {
+                color: #1a1;
+            }
+            span.failure {
+                color: #a11;
+            }
+            .output {
+                padding: 10px;
+                background-color: #ccc;
+            }
+        </style>
+    </head>
+    <body>
+        <h2>Pascal → WebAssembly Compiler Unit Tests</h2>
+        <table id="results">
+            <thead>
+                <tr>
+                    <th>Test Name</th>
+                    <th>Result</th>
+                    <th>Reason</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </body>
+</html>

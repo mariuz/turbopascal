@@ -126,12 +126,12 @@ define(["Node", "inst", "PascalError"], function (Node, inst, PascalError) {
     // Concatenate multiple byte arrays into one.
     function concat(arrays) {
         var total = 0;
-        for (var i = 0; i < arrays.length; i++) { total += arrays[i].length; }
+        for (var ai = 0; ai < arrays.length; ai++) { total += arrays[ai].length; }
         var out = new Array(total);
         var pos = 0;
-        for (var i = 0; i < arrays.length; i++) {
-            for (var j = 0; j < arrays[i].length; j++) {
-                out[pos++] = arrays[i][j];
+        for (var ai = 0; ai < arrays.length; ai++) {
+            for (var bi = 0; bi < arrays[ai].length; bi++) {
+                out[pos++] = arrays[ai][bi];
             }
         }
         return out;
@@ -904,7 +904,9 @@ define(["Node", "inst", "PascalError"], function (Node, inst, PascalError) {
                 func.emit(isReal ? OP_F64_MUL : OP_I32_MUL);
                 return isReal ? WASM_F64 : WASM_I32;
             case Node.DIVISION:
-                func.emit(isReal ? OP_F64_DIV : OP_F64_DIV);
+                // Pascal's '/' operator always produces a real result.
+                // The Parser inserts CAST nodes so both operands are already f64.
+                func.emit(OP_F64_DIV);
                 return WASM_F64;
             case Node.INTEGER_DIVISION:
                 func.emit(OP_I32_DIV_S);
